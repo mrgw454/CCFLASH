@@ -1,4 +1,4 @@
-# ROM2BINCCF
+# CCFLASH
 Script for processing cartridges from TRS-80 Color Computer Archive and prepping them for use with CocoFLASH
 
 Linux (bash) is required to run this script.
@@ -32,6 +32,7 @@ https://github.com/mrgw454/CCFLASH.git
 
 
 Download all/any cartridge files you want (such as from the TRS-80 Color Computer Archive) and place them into a sub-folder (such as 'cca').  The filename suffix for the cartridges should be *.ccc.
+
 All cartridge files need to be ROM based, not binary.  This means the normal cartridge BIN preamble and footer should not be present.
 
 
@@ -40,8 +41,6 @@ Once you have all the cartridges files you wish to process, you are ready to run
 ./sort-carts.sh cca
 
 A new folder will be created called 'cca-sorted.'  This will contain a copy of all the cartridges, renamed by ROM size and then alphabetically.  This is important when we perform the final processing.
-
-
 
 ./process-carts.sh cca-sorted
 
