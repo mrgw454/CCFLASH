@@ -132,12 +132,10 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 				# add Barry's ROM to BIN conversion programs to DSK image
 				decb copy -0 -a -r "PRGFLASH/PRGFLASH.BAS" "$cartsize/$catnum/$catnum.DSK","PRGFLASH.BAS"
 				decb copy -2 -b -r "PRGFLASH/PRGFLASH.BIN" "$cartsize/$catnum/$catnum.DSK","PRGFLASH.BIN"
-				decb copy -0 -a -r "PRGFLASH/MENU.BAS" "$cartsize/$catnum/$catnum.DSK","MENU.BAS"
 				decb copy -2 -b -r "PRGFLASH/BASLOAD.BIN" "$cartsize/$catnum/$catnum.DSK","BASLOAD.BIN"
 
 				decb copy -0 -a -r "PRGFLASH/PRGFLASH.BAS" "DW2SD/$fname/$catnum.DSK","PRGFLASH.BAS"
 				decb copy -2 -b -r "PRGFLASH/PRGFLASH.BIN" "DW2SD/$fname/$catnum.DSK","PRGFLASH.BIN"
-				decb copy -0 -a -r "PRGFLASH/MENU.BAS" "DW2SD/$fname/$catnum.DSK","MENU.BAS"
 				decb copy -2 -b -r "PRGFLASH/BASLOAD.BIN" "DW2SD/$fname/$catnum.DSK","BASLOAD.BIN"
 			fi
 
