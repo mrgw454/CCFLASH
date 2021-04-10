@@ -14,6 +14,7 @@ fi
 # if ccflash-pyDW.sh script exists, delete it and recreate a new one
 if [ -e "ccflash-pyDW.sh" ]; then
 	rm "ccflash-pyDW.sh"
+fi
 
 	echo echo Inserting  [  \"PRGFLASH\" ]  DSK image >> ccflash-pyDW.sh
 	echo echo "\(used for flashing new MENU to CoCoFLASH cartridge\)" >> ccflash-pyDW.sh
@@ -32,7 +33,6 @@ if [ -e "ccflash-pyDW.sh" ]; then
 	echo >> ccflash-pyDW.sh
 	echo >> ccflash-pyDW.sh
 
-fi
 
 # if ccflash-report.txt exists, delete it
 if [ -e "ccflash-report-$1.txt" ]; then
@@ -86,7 +86,7 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 
 
 	# check for non-original versions of cartridges and exclude them
-	if [[ $fullfilename != *"[a1]"* ]] && [[ $fullfilename != *"[b1]"* ]] && [[ $fullfilename != *"[o1]"* ]] && [[ $fullfilename != *"[h1]"* ]] && [[ $fullfilename != *"26-xxxx"* ]]; then
+	#if [[ $fullfilename != *"[a1]"* ]] && [[ $fullfilename != *"[b1]"* ]] && [[ $fullfilename != *"[o1]"* ]] && [[ $fullfilename != *"[h1]"* ]] && [[ $fullfilename != *"26-xxxx"* ]]; then
 
 		# if RS catalog number for catridge is not blank, process the file
 		if [ ! -z "$catnum" ]; then
@@ -390,27 +390,26 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 
 
 			# if cartridge is 32K (requires flashing 2 16K banks in reverse order)...
-			if [ $filesize -eq 32768 ]; then
+			#if [ $filesize -gt 32000 ] && [ $filesize -lt 33000 ]; then
+			if [ $filesize -gt 32000 ]; then
 
 				# define cart bank type and total (4K) banks used
  				banktype=34
 
+				# convert hex 0D (carriage return) to 0A (line feed) prior to splitting
+				tr '\r' '\n' < "$i"  > "$i.temp"; rm "$i"; mv "$i.temp" "$i"
+
 				# split ROM files over 16K in size
 				/usr/bin/split -b 16384 -d "$i" "$cartsize/$catnum/$catnum."
 
-				# add header/footer to ROM file to convert to a BIN (16K)
+				# DO NOT ADD header/footer to ROM file.  Not required for split files
 				for c in $cartsize/$catnum/$catnum.0*; do
 
 					banksused=$((banksused+4))
 
-					printf "\x00\x40\x00\x40\x00" | cat - $c > $c.BIN
-					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
-					rm $c
-					mv $c.BIN $c
-
 					binname=$(basename "$c")
-					decb copy -2 -b -r "$c" "$cartsize/$catnum/$catnum.DSK","$binname"
-					decb copy -2 -b -r "$c" "DW2SD/$fname/$catnum.DSK","$binname"
+					decb copy -1 -a -r "$c" "$cartsize/$catnum/$catnum.DSK","$binname"
+					decb copy -1 -a -r "$c" "DW2SD/$fname/$catnum.DSK","$binname"
 
 				done
 
@@ -418,28 +417,26 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 
 
 
-			# if cartridge is over 32K...
-			if [ $filesize -gt 32768 ]; then
+			# if cartridge is 64K or over...
+			if [ $filesize -gt 64000 ]; then
 
 				# define cart bank type and total (4K) banks used
  				banktype=34
 
+                               # convert hex 0D (carriage return) to 0A (line feed) prior to splitting
+                                tr '\r' '\n' < "$i"  > "$i.temp"; rm "$i"; mv "$i.temp" "$i"
+
 				# split ROM files over 16K in size
 				/usr/bin/split -b 16384 -d "$i" "$cartsize/$catnum/$catnum."
 
-				# add header/footer to ROM file to convert to a BIN (16K)
-				for c in $cartsize/$catnum/$catnum.0*; do
+				# DO NOT ADD header/footer to ROM file. Not required for split files
+				for c in $cartsize/$catnum/$catnum.00*; do
 
 					banksused=$((banksused+4))
 
-					printf "\x00\x40\x00\x40\x00" | cat - $c > $c.BIN
-					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
-					rm $c
-					mv $c.BIN $c
-
 					binname=$(basename "$c")
-					decb copy -2 -b -r "$c" "$cartsize/$catnum/$catnum.DSK","$binname"
-					decb copy -2 -b -r "$c" "DW2SD/$fname/$catnum.DSK","$binname"
+					decb copy -1 -a -r "$c" "$cartsize/$catnum/$catnum.DSK","$binname"
+					decb copy -1 -a -r "$c" "DW2SD/$fname/$catnum.DSK","$binname"
 
 				done
 
@@ -481,7 +478,7 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 
 		fi
 
-	fi
+	#fi
 
 done
 
