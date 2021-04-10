@@ -11,28 +11,10 @@ if [ -d "DW2SD" ]; then
 	rm -r "DW2SD"
 fi
 
-# if ccflash-pyDW.sh script exists, delete it and recreate a new one
+# if ccflash-pyDW.sh script exists, delete it
 if [ -e "ccflash-pyDW.sh" ]; then
 	rm "ccflash-pyDW.sh"
 fi
-
-	echo echo Inserting  [  \"PRGFLASH\" ]  DSK image >> ccflash-pyDW.sh
-	echo echo "\(used for flashing new MENU to CoCoFLASH cartridge\)" >> ccflash-pyDW.sh
-	echo echo >> ccflash-pyDW.sh
-
-	# change the 'dw instance select x' as per your requirement
-	echo $HOME/pyDriveWire/pyDwCli http://localhost:6800 dw instance select 0 >> ccflash-pyDW.sh
-
-	echo $HOME/pyDriveWire/pyDwCli http://localhost:6800 dw disk eject 0 >> ccflash-pyDW.sh
-	echo $HOME/pyDriveWire/pyDwCli http://localhost:6800 dw disk insert 0 \"/media/share1/DW4/CCFLASH/PRGFLASH/PRGFLASH.DSK\" >> ccflash-pyDW.sh
-	echo echo >> ccflash-pyDW.sh
-	echo read -p  \"Press any key to insert next DSK image...\" -n1 -s >> ccflash-pyDW.sh
-	echo echo >> ccflash-pyDW.sh
-	echo echo >> ccflash-pyDW.sh
-	echo echo >> ccflash-pyDW.sh
-	echo >> ccflash-pyDW.sh
-	echo >> ccflash-pyDW.sh
-
 
 # if ccflash-report.txt exists, delete it
 if [ -e "ccflash-report-$1.txt" ]; then
@@ -44,7 +26,35 @@ if [ -e "DATA.MID" ]; then
 	rm "DATA.MID"
 fi
 
+# if PRGFLASH/MENU.BAS exists, delete it
+if [ -e "PRGFLASH/MENU.BAS" ]; then
+	rm "PRGFLASH/MENU.BAS"
+fi
+
+# if PRGFLASH/PRGFLASH.DSK exists, delete it
+if [ -e "PRGFLASH/PRGFLASH.DSK" ]; then
+	rm "PRGFLASH/PRGFLASH.DSK"
+fi
+
 # end of housekeeping
+
+
+echo echo Inserting  [  \"PRGFLASH\" ]  DSK image >> ccflash-pyDW.sh
+echo echo "\(used for flashing new MENU to CoCoFLASH cartridge\)" >> ccflash-pyDW.sh
+echo echo >> ccflash-pyDW.sh
+
+# change the 'dw instance select x' as per your requirement
+echo $HOME/pyDriveWire/pyDwCli http://localhost:6800 dw instance select 0 >> ccflash-pyDW.sh
+
+echo $HOME/pyDriveWire/pyDwCli http://localhost:6800 dw disk eject 0 >> ccflash-pyDW.sh
+echo $HOME/pyDriveWire/pyDwCli http://localhost:6800 dw disk insert 0 \"/media/share1/DW4/CCFLASH/PRGFLASH/PRGFLASH.DSK\" >> ccflash-pyDW.sh
+echo echo >> ccflash-pyDW.sh
+echo read -p  \"Press any key to insert next DSK image...\" -n1 -s >> ccflash-pyDW.sh
+echo echo >> ccflash-pyDW.sh
+echo echo >> ccflash-pyDW.sh
+echo echo >> ccflash-pyDW.sh
+echo >> ccflash-pyDW.sh
+echo >> ccflash-pyDW.sh
 
 
 # ROM trailer/footer info to convert them to a BIN:
