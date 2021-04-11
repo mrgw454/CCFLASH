@@ -62,6 +62,7 @@ echo >> ccflash-pyDW.sh
 # 4K				00 10 00 40 00						FF 00 00 40 00
 # 8K				00 20 00 40 00						FF 00 00 40 00
 # 10/12K			00 30 00 40 00						FF 00 00 40 00
+# 15K				00 3C CD 00 00						FF 00 00 40 00	(15,565)
 # 15K				00 3E 00 40 00						FF 00 00 40 00	(15,872)
 # 15K				00 3F 00 40 00						FF 00 00 40 00	(16,128)
 # 16k				00 3F FF 40 00						FF 00 00 40 00	(16,383)
@@ -279,6 +280,33 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					mv $c.BIN $c
 					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
 						mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
+
+					binname=$(basename "$c")
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"
+
+				done
+
+			fi
+
+
+
+			# if cartridge is 15K...
+			if [ $filesize -eq 15565 ]; then
+
+				# define cart bank type and total (4K) banks used
+ 				banktype=2
+ 				banksused=4
+
+				# add header/footer to ROM file to convert to a BIN (16K)
+				for c in $cartsize/$catnum/$catnum.ROM; do
+
+					printf "\x00\x3C\xCD\x40\x00" | cat - $c > $c.BIN
+					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
+					rm $c
+					mv $c.BIN $c
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
