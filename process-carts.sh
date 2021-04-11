@@ -64,6 +64,7 @@ echo >> ccflash-pyDW.sh
 # 10/12K			00 30 00 40 00						FF 00 00 40 00
 # 15K				00 3E 00 40 00						FF 00 00 40 00	(15,872)
 # 15K				00 3F 00 40 00						FF 00 00 40 00	(16,128)
+# 16k				00 3F FF 40 00						FF 00 00 40 00	(16,383)
 # 16K				00 40 00 40 00						FF 00 00 40 00	(16,384)
 # 16K				00 3F F0 40 00						FF 00 00 40 00	(16,368)
 
@@ -397,7 +398,7 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 
 
 
-			# if cartridge is 32K (requires flashing 2 16K banks in reverse order)...
+			# if cartridge is 32K or over (32K requires flashing 2 16K banks in reverse order)...
 			#if [ $filesize -gt 32000 ] && [ $filesize -lt 33000 ]; then
 			if [ $filesize -gt 32000 ]; then
 
@@ -410,45 +411,52 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 				# split ROM files over 16K in size
 				/usr/bin/split -b 16384 -d "$i" "$cartsize/$catnum/$catnum."
 
-				# DO NOT ADD header/footer to ROM file.  Not required for split files
+
+				# add header/footer to ROM file to convert to a BIN (16K)
 				for c in $cartsize/$catnum/$catnum.0*; do
 
-					banksused=$((banksused+4))
+					splitsize=$(stat -c%s "$c")
 
-					binname=$(basename "$c")
-					decb copy -1 -a -r "$c" "$cartsize/$catnum/$catnum.DSK","$binname"
-					decb copy -1 -a -r "$c" "DW2SD/$fname/$catnum.DSK","$binname"
+						if [ $splitsize -eq 16128 ]; then
+
+							printf "\x00\x3F\x00\x40\x00" | cat - $c > $c.BIN
+							printf "\xFF\x00\x00\x40\x00" >> $c.BIN
+							rm $c
+							mv $c.BIN $c
+
+						fi
+
+
+						if [ $splitsize -eq 16383 ]; then
+
+							printf "\x00\x3F\xFF\x40\x00" | cat - $c > $c.BIN
+							printf "\xFF\x00\x00\x40\x00" >> $c.BIN
+							rm $c
+							mv $c.BIN $c
+
+						fi
+
+
+						if [ $splitsize -eq 16384 ]; then
+
+							printf "\x00\x40\x00\x40\x00" | cat - $c > $c.BIN
+							printf "\xFF\x00\x00\x40\x00" >> $c.BIN
+							rm $c
+							mv $c.BIN $c
+
+						fi
+
+						banksused=$((banksused+4))
+
+						binname=$(basename "$c")
+						decb copy -2 -b -r "$c" "$cartsize/$catnum/$catnum.DSK","$binname"
+						decb copy -2 -b -r "$c" "DW2SD/$fname/$catnum.DSK","$binname"
+
 
 				done
 
 			fi
 
-
-
-			# if cartridge is 64K or over...
-			if [ $filesize -gt 64000 ]; then
-
-				# define cart bank type and total (4K) banks used
- 				banktype=34
-
-                               # convert hex 0D (carriage return) to 0A (line feed) prior to splitting
-                                tr '\r' '\n' < "$i"  > "$i.temp"; rm "$i"; mv "$i.temp" "$i"
-
-				# split ROM files over 16K in size
-				/usr/bin/split -b 16384 -d "$i" "$cartsize/$catnum/$catnum."
-
-				# DO NOT ADD header/footer to ROM file. Not required for split files
-				for c in $cartsize/$catnum/$catnum.00*; do
-
-					banksused=$((banksused+4))
-
-					binname=$(basename "$c")
-					decb copy -1 -a -r "$c" "$cartsize/$catnum/$catnum.DSK","$binname"
-					decb copy -1 -a -r "$c" "DW2SD/$fname/$catnum.DSK","$binname"
-
-				done
-
-			fi
 
 
 			# generate quick report of files
