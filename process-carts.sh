@@ -6,9 +6,9 @@
 
 # perform some housekeeping
 
-# if DW2SD folder exits, purge it
-if [ -d "DW2SD" ]; then
-	rm -r "DW2SD"
+# if DW2HD folder exits, purge it
+if [ -d "DW2HD" ]; then
+	rm -r "DW2HD"
 fi
 
 # if ccflash-pyDW.sh script exists, delete it
@@ -116,14 +116,14 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 				mkdir "$cartsize/$catnum"
 			fi
 
-			# used for DW2SD program
-			if [ ! -d "DW2SD" ]; then
-				mkdir "DW2SD"
+			# used for DW2HD program
+			if [ ! -d "DW2HD" ]; then
+				mkdir "DW2HD"
 			fi
 
-			# used for DW2SD program
-			if [ ! -d "DW2SD/$fname" ]; then
-				mkdir "DW2SD/$fname"
+			# used for DW2HD program
+			if [ ! -d "DW2HD/$fname" ]; then
+				mkdir "DW2HD/$fname"
 			fi
 
 
@@ -132,9 +132,13 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 				decb dskini "$cartsize/$catnum/$catnum.DSK" -n"$fname"
 			fi
 
-			if [ ! -f "DW2SD/$fname/catnum.DSK" ]; then
-        			decb dskini "DW2SD/$fname/$catnum.DSK" -n"$fname"
+			if [ ! -f "DW2HD/$fname/catnum.DSK" ]; then
+        			decb dskini "DW2HD/$fname/$catnum.DSK" -n"$fname"
 			fi
+
+
+			# create 8.3 filename for ROM
+			cp "$i" "$cartsize/$catnum/$catnum.ROM"
 
 
 			# if cartridge is under 128K, include CocoFLASH companion files to DSK image
@@ -143,16 +147,23 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 
 				# add Barry's ROM to BIN conversion programs to DSK image
 				decb copy -0 -a -r "PRGFLASH/PRGFLASH.BAS" "$cartsize/$catnum/$catnum.DSK","PRGFLASH.BAS"
+				decb copy -0 -a -r "PRGFLASH/CONV2BIN.BAS" "$cartsize/$catnum/$catnum.DSK","CONV2BIN.BAS"
+				decb copy -0 -a -r "PRGFLASH/SPLIT.BAS" "$cartsize/$catnum/$catnum.DSK","SPLIT.BAS"
 				decb copy -2 -b -r "PRGFLASH/PRGFLASH.BIN" "$cartsize/$catnum/$catnum.DSK","PRGFLASH.BIN"
-				decb copy -2 -b -r "PRGFLASH/BASLOAD.BIN" "$cartsize/$catnum/$catnum.DSK","BASLOAD.BIN"
+				decb copy -2 -b -r "PRGFLASH/CONV2BIN.BIN" "$cartsize/$catnum/$catnum.DSK","CONV2BIN.BIN"
+				decb copy -1 -b -r "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.DSK","$catnum.ROM"
 
-				decb copy -0 -a -r "PRGFLASH/PRGFLASH.BAS" "DW2SD/$fname/$catnum.DSK","PRGFLASH.BAS"
-				decb copy -2 -b -r "PRGFLASH/PRGFLASH.BIN" "DW2SD/$fname/$catnum.DSK","PRGFLASH.BIN"
-				decb copy -2 -b -r "PRGFLASH/BASLOAD.BIN" "DW2SD/$fname/$catnum.DSK","BASLOAD.BIN"
+				decb copy -0 -a -r "PRGFLASH/PRGFLASH.BAS" "DW2HD/$fname/$catnum.DSK","PRGFLASH.BAS"
+				decb copy -0 -a -r "PRGFLASH/CONV2BIN.BAS" "$cartsize/$catnum/$catnum.DSK","CONV2BIN.BAS"
+				decb copy -0 -a -r "PRGFLASH/SPLIT.BAS" "$cartsize/$catnum/$catnum.DSK","SPLIT.BAS"
+				decb copy -2 -b -r "PRGFLASH/PRGFLASH.BIN" "DW2HD/$fname/$catnum.DSK","PRGFLASH.BIN"
+				decb copy -2 -b -r "PRGFLASH/CONV2BIN.BIN" "$cartsize/$catnum/$catnum.DSK","CONV2BIN.BIN"
+				decb copy -1 -b -r "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.DSK","$catnum.ROM"
+
 			fi
 
 
-			cp "$i" "$cartsize/$catnum/$catnum.ROM"
+			#cp "$i" "$cartsize/$catnum/$catnum.ROM"
 
 
 			# if cartridge is 2K...
@@ -170,12 +181,12 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					rm $c
 					mv $c.BIN $c
 
-					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2HD/$fname/$catnum.BIN"
 					mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
-					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2HD/$fname/$catnum.DSK","$catnum.BIN"
 
 				done
 
@@ -197,12 +208,12 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
 					rm $c
 					mv $c.BIN $c
-					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2HD/$fname/$catnum.BIN"
 					mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"  
-					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"  
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2HD/$fname/$catnum.DSK","$catnum.BIN"  
 
 				done
 
@@ -224,12 +235,12 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
 					rm $c
 					mv $c.BIN $c
-					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2HD/$fname/$catnum.BIN"
 					mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
-					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2HD/$fname/$catnum.DSK","$catnum.BIN"
 
 				done
 
@@ -251,12 +262,12 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
 					rm $c
 					mv $c.BIN $c
-					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2HD/$fname/$catnum.BIN"
 					mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
-					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2HD/$fname/$catnum.DSK","$catnum.BIN"
 
 				done
 
@@ -278,12 +289,12 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
 					rm $c
 					mv $c.BIN $c
-					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2HD/$fname/$catnum.BIN"
 						mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
-					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2HD/$fname/$catnum.DSK","$catnum.BIN"
 
 				done
 
@@ -305,12 +316,12 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
 					rm $c
 					mv $c.BIN $c
-					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2HD/$fname/$catnum.BIN"
 					mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
-					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2HD/$fname/$catnum.DSK","$catnum.BIN"
 
 				done
 
@@ -332,12 +343,12 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
 					rm $c
 					mv $c.BIN $c
-					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2HD/$fname/$catnum.BIN"
 					mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
-					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2HD/$fname/$catnum.DSK","$catnum.BIN"
 
 				done
 
@@ -359,12 +370,12 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
 					rm $c
 					mv $c.BIN $c
-					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2HD/$fname/$catnum.BIN"
 					mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
-					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2HD/$fname/$catnum.DSK","$catnum.BIN"
 
 				done
 
@@ -386,12 +397,12 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
 					rm $c
 					mv $c.BIN $c
-					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2HD/$fname/$catnum.BIN"
 					mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
-					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2HD/$fname/$catnum.DSK","$catnum.BIN"
 
 				done
 
@@ -413,12 +424,12 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 					printf "\xFF\x00\x00\x40\x00" >> $c.BIN
 					rm $c
 					mv $c.BIN $c
-					cp "$cartsize/$catnum/$catnum.ROM" "DW2SD/$fname/$catnum.BIN"
+					cp "$cartsize/$catnum/$catnum.ROM" "DW2HD/$fname/$catnum.BIN"
 					mv "$cartsize/$catnum/$catnum.ROM" "$cartsize/$catnum/$catnum.BIN"
 
 					binname=$(basename "$c")
 					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "$cartsize/$catnum/$catnum.DSK","$catnum.BIN"
-					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2SD/$fname/$catnum.DSK","$catnum.BIN"
+					decb copy -2 -b -r "$cartsize/$catnum/$catnum.BIN" "DW2HD/$fname/$catnum.DSK","$catnum.BIN"
 
 				done
 
@@ -478,7 +489,7 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 
 						binname=$(basename "$c")
 						decb copy -2 -b -r "$c" "$cartsize/$catnum/$catnum.DSK","$binname"
-						decb copy -2 -b -r "$c" "DW2SD/$fname/$catnum.DSK","$binname"
+						decb copy -2 -b -r "$c" "DW2HD/$fname/$catnum.DSK","$binname"
 
 
 				done
@@ -497,7 +508,7 @@ for i in $PWD/$1/**/*.ccc; do # Whitespace-safe and recursive
 			echo echo BANK NO: $bankno   BANK TYPE: $banktype   BANKS USED: $banksused   CART SIZE: $cartsize >> ccflash-pyDW.sh
 			echo echo >> ccflash-pyDW.sh
 			echo $HOME/pyDriveWire/pyDwCli http://localhost:6800 dw disk eject 0 >> ccflash-pyDW.sh
-			echo $HOME/pyDriveWire/pyDwCli http://localhost:6800 dw disk insert 0 \"/media/share1/DW4/CCFLASH/DW2SD/$fname/$catnum.DSK\" >> ccflash-pyDW.sh
+			echo $HOME/pyDriveWire/pyDwCli http://localhost:6800 dw disk insert 0 \"/media/share1/DW4/CCFLASH/DW2HD/$fname/$catnum.DSK\" >> ccflash-pyDW.sh
 			echo echo >> ccflash-pyDW.sh
 			echo read -p  \"Press any key to insert next DSK image...\" -n1 -s >> ccflash-pyDW.sh
 			echo echo >> ccflash-pyDW.sh
@@ -543,7 +554,12 @@ rm DATA.MID
 # build new PRGFLASH.DSK image
 cd PRGFLASH
 makeDSK.sh
+
 cd ..
+
+# create folder and copy DSK image to DW2HD folder as last entry
+mkdir "DW2HD/999 PRGFLASH Utilties (Barry Nelson)"
+cp "PRGFLASH/PRGFLASH.DSK" "DW2HD/999 PRGFLASH Utilties (Barry Nelson)"
 
 shopt -u nocaseglob
 shopt -u globstar

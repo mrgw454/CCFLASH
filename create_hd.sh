@@ -4,4 +4,4 @@
 #dd bs=256 of=CCFLASH.dsk count=322562
 
 # new way
-truncate -s 32M CCFLASH.dsk
+truncate -s 32M CCFLASH.DSK
